@@ -211,6 +211,93 @@ So for pure components, they only re-render if there is a difference between the
 What purecomponents is to class components, memo is to fucntional components. React.memo was introduce from React 16.6.* and does not work with lower versions.
 
 
+REFS in React:
+React supports two ways:
+1. Using the React.createRef method on the constructor to create a new value as this.inputRef = Reat.creatRef()
+2. A slighly older approach using sall back refs approach. It has 4 step
+   1. Creating the ref and initiate it to null e.g this.cbRef = null
+   2. create a method that will assign a DOM element to the ref instep 1 e.g  this.setCbRef =  element => { this.cbRef = element}
+   3. Attach the ref to the input element as <input type="text" ref = {this.setCbRef}>
+   4. In component did mount then check if the cbRef is null. if not then call the cbRef.focus.
+
+Call back refs are different from the React.CreateRefs since the properties are called directly without going through the Current.
+Refs can only be attached to class components.
+
+Reference forwarding is a technique of automatically passing a reference from a component to one of its children.
+The Ref is passed down to the child from the parent. The child component can be created as a functional component and set to receive props as the first parameter and ref as the second parameter.
+
+The ref can then be passed down to the native input element in the child component.
+
+Error Hanling:
+Can be managed using the methods:
+1. Static getDerivedStateFromError(error) - Used  to render a fallback UI after an error is thrown.
+2. componentDidCatch(error, info) - Used to log the error information.
+
+Instead of react returning the entire component tree it should catch the specific error and return a fallback UI using error boundaries (A class component that implements either one or both of the abovr lifecycle methods).
+By default, if any of the components on the app.js has an error, the entire application breaks. The most ideal solution would be for the component with an error to break/throw an error while the rest of the components are rendered. This can be achieved using error boundaries.
+The error component is created as a class. The class then wraps all the components in the app.js component. However, by design by the react team, the errors will always be visible in development. Only hidden in production. 
+
+Error Boundaries catch errors during rendering in life cycle methods and in the constructors in their child component trees. They do not catch errors inside the event hadnlers.
+
+Higher Order Components:
+In some instances, one might have requirements that implement similar pieces of code. Say one want to increase acounter on clicking a button, Also increase the counter when one hovers on a header etc. The incrementing code for the two instances is similar. We can reuse the code by defining the counter functionality in the app component then pass it down to the rest as a prop. This would work if the two components are children of the same parent component.
+
+A higher order component (HOC) is a pattern where a function takes a component as an argument and returns a new component.
+const NewComponent (EnhancedComponent) = higherOrderComponent(originalComponent)
+HOCs have a specific naming convention which is not mandatory.
+1. Function Name - Similar to the File name
+2. Original Component - Referred to as the Wrapped Component
+3. New Component - Similar to the function name but in Pascal case.
+
+When working with HOCs, if a prop is sent from the app.js, the prop is passed to the HOC instead of the component itself. The HOC should then pass them down to the components using the spread operator ({... this.props}). The operator checks for any other props and automatically passes them down so they can be accessed by the respective components.
+
+One might also want to pass parameters to the HOC function. Say instead of incrementing a counter by one, you want to increment it by a specific number passed down as a parameter. The counter is passed in as a second parameter.
+
+Other than HOCs, one can also use Render props to share code between components:
+In the app.js component, one can pass in a function prop say: <User render = {(isLoggedIn) => isLoggedIn ? 'Daniel' : 'Guest' }/> the render prop can then be accessed in the user component as this.props.render(true).
+The render prop does not conflict with the default render method in react.
+Therefore, Render props refers to a technique for sharing code between React components using a prop whose value is a function.
+The render method works by creating a class component with all the code to be shared among components then on its render method adding the <div>{this.props.render(this.state.count, this.incrementCount)}</div> with the various props to be shared. In the app.js, one can call the renderprops class with the prop set to a function with the passed down props as parameters. Then call the child classes with the parameters as props to the child component. e.g., 
+<RenderPropsCounter 
+    render={(count, incrementCount) => (
+        <HoverCounterTwo count = {count} incrementCount = {incrementCount}/> 
+    )}
+/>
+the props doesn't necessarily have to be called render. You can give it any name or not assign it a name and instead call it as children in the child component:
+<RenderPropsCounter>
+    {(count, incrementCount) => (
+        <HoverCounterTwo count = {count} incrementCount = {incrementCount}/> 
+    )}
+</RenderPropsCounter>
+
+
+React Context:
+Consider an application with several nested components. Say at the root we have app component, under it at the first level, we have components A, B & C. Within B we have component D, within component C, component E and within E is component F. Component A, D and F need to show the username which is mmantained as a property in root component.
+
+Component A can access it directly as a prop. For component D, we must pass the prop to component B then down to componet D, which is similar to F, pass it to C to E then to F as much as B,C and E do not need the prop it becomes tedious to pass the component all the way down. The easiest would be to pass it directly to the child that needs it.
+
+Therefore, Context provides a way to pass data through the component tree without having to pass props down manually at every level.
+
+There are 3 steps:
+1. Create the context - see userContext
+2. Provide a context value - Must provide the context using the userProvider value. The best place to do this is using the App.js component since all the components fall under it. You do it by wrapping the rest of the components with the UserProvider. It provides the value to all descendent component. We will then provide it using the value attribute of the provider component
+3. Consume the context value - To consumer the value, you need to use the consumer component by adding the UserConsumer component within the render method of the component that needs to consume the provided value using an arrow function
+
+You can set a default value to your context. This is created when creating the context.
+Context Type property - To use it, first export the context function
+Then assign it to the user context property of the class.
+The context type seems simpler but it has two limitations:
+1. It only works with class components
+2. You can only subscribe to a single context using context types. Many a times you need to read multiple and the consumer context is the way to go.
+
+
+
+
+
+
+
+
+
 
 
 
